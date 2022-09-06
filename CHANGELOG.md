@@ -14,6 +14,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Support for labels on version bump PRs, skip label support for changelog verifier ([#4391](https://github.com/opensearch-project/OpenSearch/pull/4391))
 ### Dependencies
 - Bumps `org.gradle.test-retry` from 1.4.0 to 1.4.1
+- Bumps `antlr4-runtime` from 4.9.3 to 4.11.1
 
 ### Dependencies
 - Bumps `com.diffplug.spotless` from 6.9.1 to 6.10.0
