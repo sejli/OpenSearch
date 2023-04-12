@@ -456,6 +456,17 @@ public final class SearchHit implements Writeable, ToXContentObject, Iterable<Do
     }
 
     /*
+     * Renames an existing DocumentField in the map
+     * */
+    public void renameDocumentField(String oldField, String newField) {
+        if (oldField == null || newField == null) return;
+        if (documentFields.containsKey(oldField)) {
+            DocumentField documentField = new DocumentField(newField, documentFields.remove(oldField).getValues());
+            this.documentFields.put(newField, documentField);
+        }
+    }
+
+    /*
     * Adds a new DocumentField to the map in case both parameters are not null.
     * */
     public void setDocumentField(String fieldName, DocumentField field) {
