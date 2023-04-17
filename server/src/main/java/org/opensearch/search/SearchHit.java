@@ -458,12 +458,12 @@ public final class SearchHit implements Writeable, ToXContentObject, Iterable<Do
     /*
      * Renames an existing DocumentField in the map
      * */
-    public void renameDocumentField(String oldField, String newField) {
-        if (oldField == null || newField == null) return;
-        if (documentFields.containsKey(oldField)) {
-            DocumentField documentField = new DocumentField(newField, documentFields.remove(oldField).getValues());
-            this.documentFields.put(newField, documentField);
+    public DocumentField removeDocumentField(String field) {
+        if (field == null) return null;
+        if (documentFields.containsKey(field)) {
+            return documentFields.remove(field);
         }
+        return null;
     }
 
     /*

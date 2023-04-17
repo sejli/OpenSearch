@@ -15,14 +15,12 @@ import org.opensearch.common.collect.Tuple;
 import org.opensearch.common.document.DocumentField;
 import org.opensearch.common.xcontent.XContentHelper;
 import org.opensearch.core.xcontent.MediaType;
-import org.opensearch.core.xcontent.NamedXContentRegistry;
 import org.opensearch.core.xcontent.XContentBuilder;
 import org.opensearch.ingest.ConfigurationUtils;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.pipeline.Processor;
 import org.opensearch.search.pipeline.SearchResponseProcessor;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class RenameResponseProcessor extends AbstractProcessor implements SearchResponseProcessor{
@@ -63,7 +61,8 @@ public class RenameResponseProcessor extends AbstractProcessor implements Search
             Map<String, DocumentField> fields = hits[i].getFields();
             if (fields.containsKey(oldField)){
                 foundField = true;
-                hits[i].renameDocumentField(oldField, newField);
+                DocumentField field = hits[i].removeDocumentField(oldField);
+                hits[i].setDocumentField(newField, new DocumentField(newField, field.getValues()));
             }
 
             BytesReference sourceRef = hits[i].getSourceRef();
@@ -71,11 +70,14 @@ public class RenameResponseProcessor extends AbstractProcessor implements Search
                 XContentHelper.convertToMap(sourceRef, false, (MediaType) null);
 
             Map<String, Object> sourceAsMap = typeAndSourceMap.v2();
-            System.out.println("sourceasmap keyset: " + sourceAsMap.keySet());
             if (sourceAsMap.containsKey(oldField)) {
                 foundField = true;
-                DocumentField rewrittenField = new DocumentField(newField, Collections.singletonList(sourceAsMap.remove(oldField)));
-                sourceAsMap.put(newField, rewrittenField);
+                Object val = sourceAsMap.remove(oldField);
+                if (val instanceof DocumentField) {
+                    DocumentField dfVal = (DocumentField) val;
+                    val = new DocumentField(newField, dfVal.getValues());
+                }
+                sourceAsMap.put(newField, val);
 
                 XContentBuilder builder = XContentBuilder.builder(typeAndSourceMap.v1().xContent());
                 builder.map(sourceAsMap);
@@ -92,11 +94,9 @@ public class RenameResponseProcessor extends AbstractProcessor implements Search
 
     public static final class Factory implements Processor.Factory {
 
-        final NamedXContentRegistry processorType;
+        final String type = "rename";
 
-        Factory(NamedXContentRegistry processorType) {
-            this.processorType = processorType;
-        }
+        Factory() {}
 
         @Override
         public RenameResponseProcessor create(Map<String, Processor.Factory> processorFactories, String tag, String description, Map<String, Object> config) throws Exception {

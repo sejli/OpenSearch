@@ -89,7 +89,7 @@ public class RenameResponseProcessorTests extends AbstractBuilderTestCase {
         config.put("oldField", oldField);
         config.put("newField", newField);
 
-        RenameResponseProcessor.Factory factory = new RenameResponseProcessor.Factory(this.xContentRegistry());
+        RenameResponseProcessor.Factory factory = new RenameResponseProcessor.Factory();
         RenameResponseProcessor processor = factory.create(
             Collections.emptyMap(),
             null,
